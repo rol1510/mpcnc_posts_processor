@@ -1,6 +1,6 @@
 /*
 
-https://github.com/guffy1234/mpcnc_posts_processor
+https://github.com/rol1510/mpcnc_posts_processor.git
 
 MPCNC posts processor for milling and laser/plasma cutting.
 
@@ -9,45 +9,45 @@ MPCNC posts processor for milling and laser/plasma cutting.
 
 // user-defined properties
 properties = {
-  jobTravelSpeedXY: 2500,              // High speed for travel movements X & Y (mm/min)
-  jobTravelSpeedZ: 300,                // High speed for travel movements Z (mm/min)
+  jobTravelSpeedXY: 2500,             // High speed for travel movements X & Y (mm/min)
+  jobTravelSpeedZ: 300,               // High speed for travel movements Z (mm/min)
 
-  jobManualSpindlePowerControl: true,   // Spindle motor is controlled by manual switch 
+  jobManualSpindlePowerControl: true, // Spindle motor is controlled by manual switch
 
-  jobUseArcs: true,                    // Produce G2/G3 for arcs
+  jobUseArcs: true,                   // Produce G2/G3 for arcs
 
-  jobSetOriginOnStart: true,           // Set origin when gcode start (G92)
-  jobGoOriginOnFinish: true,           // Go X0 Y0 Z0 at gcode end
+  jobSetOriginOnStart: false,         // Set origin when gcode start (G92)
+  jobGoOriginOnFinish: true,          // Go X0 Y0 Z0 at gcode end
 
-  jobSequenceNumbers: false,           // show sequence numbers
-  jobSequenceNumberStart: 10,          // first sequence number
-  jobSequenceNumberIncrement: 1,       // increment for sequence numbers
-  jobSeparateWordsWithSpace: true,     // specifies that the words should be separated with a white space  
+  jobSequenceNumbers: false,          // show sequence numbers
+  jobSequenceNumberStart: 10,         // first sequence number
+  jobSequenceNumberIncrement: 1,      // increment for sequence numbers
+  jobSeparateWordsWithSpace: true,    // specifies that the words should be separated with a white space
 
-  toolChangeEnabled: true,          // Enable tool change code (bultin tool change requires LCD display)
-  toolChangeX: 0,                   // X position for builtin tool change
-  toolChangeY: 0,                   // Y position for builtin tool change
-  toolChangeZ: 40,                  // Z position for builtin tool change
-  toolChangeZProbe: true,           // Z probe after tool change
-  toolChangeDisableZStepper: false, // disable Z stepper when change a tool
+  toolChangeEnabled: true,            // Enable tool change code (bultin tool change requires LCD display)
+  toolChangeX: 100,                   // X position for builtin tool change
+  toolChangeY: 100,                   // Y position for builtin tool change
+  toolChangeZ: 50,                    // Z position for builtin tool change
+  toolChangeZProbe: false,            // Z probe after tool change
+  toolChangeDisableZStepper: false,   // disable Z stepper when change a tool
 
-  probeOnStart: true,               // Execute probe gcode to align tool
-  probeThickness: 0.8,              // plate thickness
-  probeUseHomeZ: true,              // use G28 or G38 for probing 
-  probeG38Target: -10,              // probing up to pos 
-  probeG38Speed: 30,                // probing with speed 
+  probeOnStart: false,    // Execute probe gcode to align tool
+  probeThickness: 0.8,    // plate thickness
+  probeUseHomeZ: true,    // use G28 or G38 for probing
+  probeG38Target: -10,    // probing up to pos
+  probeG38Speed: 30,      // probing with speed
 
-  gcodeStartFile: "",               // File with custom Gcode for header/start (in nc folder)
-  gcodeStopFile: "",                // File with custom Gcode for footer/end (in nc folder)
-  gcodeToolFile: "",                // File with custom Gcode for tool change (in nc folder)
-  gcodeProbeFile: "",               // File with custom Gcode for tool probe (in nc folder)
+  gcodeStartFile: "",     // File with custom Gcode for header/start (in nc folder)
+  gcodeStopFile: "",      // File with custom Gcode for footer/end (in nc folder)
+  gcodeToolFile: "",      // File with custom Gcode for tool change (in nc folder)
+  gcodeProbeFile: "",     // File with custom Gcode for tool probe (in nc folder)
 
-  cutterOnVaporize: 100,            // Persent of power to turn on the laser/plasma cutter in vaporize mode
-  cutterOnThrough: 80,              // Persent of power to turn on the laser/plasma cutter in through mode
-  cutterOnEtch: 40,                 // Persent of power to turn on the laser/plasma cutter in etch mode
+  cutterOnVaporize: 100,  // Persent of power to turn on the laser/plasma cutter in vaporize mode
+  cutterOnThrough: 80,    // Persent of power to turn on the laser/plasma cutter in through mode
+  cutterOnEtch: 40,       // Persent of power to turn on the laser/plasma cutter in etch mode
 
-  coolantA_Mode: 0, // Enable issuing g-codes for control Coolant channel A 
-  coolantB_Mode: 0, // Use issuing g-codes for control Coolant channel B  
+  coolantA_Mode: 0,       // Enable issuing g-codes for control Coolant channel A
+  coolantB_Mode: 0,       // Use issuing g-codes for control Coolant channel B
 
   commentWriteTools: true,
   commentActivities: true,
@@ -241,7 +241,7 @@ propertyDefinitions = {
     title: "Coolant: A Off command", description: "Gcode command to turn off Coolant A", group: 6, type: "string",
     default_mm: "M42 P11 S0", default_in: "M42 P11 S0"
   },
-  
+
   coolantB_Mode: {
     title: "Coolant: B Mode", description: "Enable issuing g-codes for control Coolant channel B", group: 6, type: "integer",
     default_mm: 0, default_in: 0,
@@ -296,8 +296,8 @@ setCodePage("ascii");
 capabilities = CAPABILITY_MILLING | CAPABILITY_JET;
 
 // vendor of MPCNC
-vendor = "guffy1234";
-vendorUrl = "https://github.com/guffy1234/mpcnc_posts_processor";
+vendor = "Roland Strasser";
+vendorUrl = "https://www.roland-strasser.com/";
 
 var sequenceNumber;
 
@@ -471,8 +471,7 @@ function onSection() {
   currentFirmware.display_text(" " + sectionComment);
 }
 
-function resetAll()
-{
+function resetAll() {
   xOutput.reset();
   yOutput.reset();
   zOutput.reset();
@@ -518,7 +517,7 @@ function onCircular(clockwise, cx, cy, cz, x, y, z, feed) {
     error(localize("Radius compensation cannot be activated/deactivated for a circular move."));
     return;
   }
-  currentFirmware.circular(clockwise, cx, cy, cz, x, y, z, feed)  
+  currentFirmware.circular(clockwise, cx, cy, cz, x, y, z, feed)
 }
 
 // Called on waterjet/plasma/laser cuts
@@ -701,7 +700,7 @@ function writeFirstSection() {
     y: { min: undefined, max: undefined },
     z: { min: undefined, max: undefined },
   };
-  var handleMinMax = function(pair, range) {
+  var handleMinMax = function (pair, range) {
     var rmin = range.getMinimum();
     var rmax = range.getMaximum();
     if (pair.min == undefined || pair.min > rmin) {
@@ -711,7 +710,7 @@ function writeFirstSection() {
       pair.max = rmax;
     }
   }
-  
+
   var numberOfSections = getNumberOfSections();
   for (var i = 0; i < numberOfSections; ++i) {
     var section = getSection(i);
@@ -809,7 +808,7 @@ function linearMovements(_x, _y, _z, _feed) {
     // ensure that we end at desired position when compensation is turned off
     xOutput.reset();
     yOutput.reset();
-  }  
+  }
   var x = xOutput.format(_x);
   var y = yOutput.format(_y);
   var z = zOutput.format(_z);
@@ -820,7 +819,7 @@ function linearMovements(_x, _y, _z, _feed) {
       return;
     } else {
       writeBlock(gMotionModal.format(1), x, y, z, f);
-    }    
+    }
   } else if (f) {
     if (getNextRecord().isMotion()) { // try not to output feed without motion
       fOutput.reset(); // force feed on next line
@@ -849,7 +848,7 @@ function loadFile(_file) {
 
 var currentCoolantMode = 0;
 
-// Manage coolant state 
+// Manage coolant state
 function setCoolant(coolant) {
   if (currentCoolantMode == coolant) {
     return;
@@ -885,16 +884,15 @@ function writeActivityComment(_comment) {
   }
 }
 
-function mergeProperties(to, from)
-{
-  for (var attrname in from) { 
-    to[attrname] = from[attrname]; 
-  }   
+function mergeProperties(to, from) {
+  for (var attrname in from) {
+    to[attrname] = from[attrname];
+  }
 }
 
 function Firmware3dPrinterLike() {
   FirmwareBase.apply(this, arguments);
-  this.spindleEnabled= false;
+  this.spindleEnabled = false;
 }
 Firmware3dPrinterLike.prototype = Object.create(FirmwareBase.prototype);
 Firmware3dPrinterLike.prototype.constructor = Firmware3dPrinterLike;
@@ -1064,15 +1062,15 @@ Firmware3dPrinterLike.prototype.probeTool = function () {
 }
 
 properties3dPrinter = {
-  jobMarlinEnforceFeedrate: false,     // Add feedrate to each movement line
+  jobMarlinEnforceFeedrate: false,  // Add feedrate to each movement line
 
-  cutterMarlinMode: 106,              // Marlin mode laser/plasma cutter
+  cutterMarlinMode: 106,            // Marlin mode laser/plasma cutter
   cutterMarlinPin: 4,               // Marlin laser/plasma cutter pin for M42
 
-  coolantAMarlinOn: "M42 P11 S255",        // GCode command to turn on Coolant channel A
-  coolantAMarlinOff: "M42 P11 S0",         // Gcode command to turn off Coolant channel A
-  coolantBMarlinOn: "M42 P6 S255",         // GCode command to turn on Coolant channel B
-  coolantBMarlinOff: "M42 P6 S0",          // Gcode command to turn off Coolant channel B
+  coolantAMarlinOn: "M42 P11 S255", // GCode command to turn on Coolant channel A
+  coolantAMarlinOff: "M42 P11 S0",  // Gcode command to turn off Coolant channel A
+  coolantBMarlinOn: "M42 P6 S255",  // GCode command to turn on Coolant channel B
+  coolantBMarlinOff: "M42 P6 S0",   // Gcode command to turn off Coolant channel B
 };
 
 propertyDefinitions3dPrinter = {
@@ -1099,7 +1097,7 @@ propertyDefinitions3dPrinter = {
     title: "Coolant: A Off command", description: "Gcode command to turn off Coolant A", group: 6, type: "string",
     default_mm: "M42 P11 S0", default_in: "M42 P11 S0"
   },
-  
+
   coolantBMarlinOn: {
     title: "Coolant: B On command", description: "GCode command to turn on Coolant channel B", group: 6, type: "string",
     default_mm: "M42 P6 S255", default_in: "M42 P6 S255"

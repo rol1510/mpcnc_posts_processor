@@ -1,6 +1,6 @@
 /*
 
-https://github.com/guffy1234/mpcnc_posts_processor
+https://github.com/rol1510/mpcnc_posts_processor.git
 
 MPCNC posts processor for milling and laser/plasma cutting.
 
@@ -13,7 +13,7 @@ mergeProperties(properties, properties3dPrinter);
 mergeProperties(propertyDefinitions, propertyDefinitions3dPrinter);
 
 function FirmwareMarlin20() {
-    Firmware3dPrinterLike.apply(this, arguments);
+  Firmware3dPrinterLike.apply(this, arguments);
 }
 FirmwareMarlin20.prototype = Object.create(Firmware3dPrinterLike.prototype);
 FirmwareMarlin20.prototype.constructor = FirmwareMarlin20;
