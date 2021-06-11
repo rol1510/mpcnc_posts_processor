@@ -9,8 +9,8 @@ MPCNC posts processor for milling and laser/plasma cutting.
 
 // user-defined properties
 properties = {
-  jobTravelSpeedXY: 2500,             // High speed for travel movements X & Y (mm/min)
-  jobTravelSpeedZ: 300,               // High speed for travel movements Z (mm/min)
+  jobTravelSpeedXY: 2400,             // High speed for travel movements X & Y (mm/min)
+  jobTravelSpeedZ: 1000,               // High speed for travel movements Z (mm/min)
 
   jobManualSpindlePowerControl: true, // Spindle motor is controlled by manual switch
 
@@ -30,6 +30,7 @@ properties = {
   toolChangeZ: 50,                    // Z position for builtin tool change
   toolChangeZProbe: false,            // Z probe after tool change
   toolChangeDisableZStepper: false,   // disable Z stepper when change a tool
+  toolChangeOnFirstSection: true,     // Do a tool change for the first tool
 
   probeOnStart: false,    // Execute probe gcode to align tool
   probeThickness: 0.8,    // plate thickness
@@ -69,11 +70,11 @@ propertyDefinitions = {
 
   jobTravelSpeedXY: {
     title: "Job: Travel speed X/Y", description: "High speed for travel movements X & Y (mm/min; in/min)", group: 1,
-    type: "spatial", default_mm: 2500, default_in: 100
+    type: "spatial", default_mm: 2400, default_in: 100
   },
   jobTravelSpeedZ: {
     title: "Job: Travel Speed Z", description: "High speed for travel movements z (mm/min; in/min)", group: 1,
-    type: "spatial", default_mm: 300, default_in: 12
+    type: "spatial", default_mm: 1000, default_in: 12
   },
 
   jobManualSpindlePowerControl: {
@@ -147,6 +148,10 @@ propertyDefinitions = {
   toolChangeDisableZStepper: {
     title: "Change: Disable Z stepper", description: "Disable Z stepper when change a tool", group: 2,
     type: "boolean", default_mm: false, default_in: false
+  },
+  toolChangeOnFirstSection: {
+    title: "Change: Change tool on first section", description: "Do a tool change for the first tool", group: 2,
+    type: "boolean", default_mm: true, default_in: true
   },
 
   probeOnStart: {
@@ -409,6 +414,17 @@ function onClose() {
 
 var cutterOnCurrentPower;
 
+function shouldChangeTool() {
+  if (properties.toolChangeEnabled) {
+    if (isFirstSection()) {
+      return properties.toolChangeOnFirstSection;
+    } else {
+      return tool.number != getPreviousSection().getTool().number
+    }
+  }
+  return false;
+}
+
 function onSection() {
 
   // Write Start gcode of the documment (after the "onParameters" with the global info)
@@ -418,7 +434,7 @@ function onSection() {
   writeActivityComment(" *** SECTION begin ***");
 
   // Tool change
-  if (properties.toolChangeEnabled && !isFirstSection() && tool.number != getPreviousSection().getTool().number) {
+  if (shouldChangeTool()) {
     if (properties.gcodeToolFile == "") {
       // Builtin tool change gcode
       writeActivityComment(" --- CHANGE TOOL begin ---");
@@ -434,7 +450,7 @@ function onSection() {
     // Machining type
     if (currentSection.type == TYPE_MILLING) {
       // Specific milling code
-      writeComment(sectionComment + " - Milling - Tool: " + tool.number + " - " + tool.comment + " " + getToolTypeName(tool.type));
+      writeComment(sectionComment + " - Milling - Tool: " + tool.number + " - " + getToolCommentAndDiameter() + " " + getToolTypeName(tool.type));
     }
 
     if (currentSection.type == TYPE_JET) {
@@ -750,7 +766,7 @@ function writeFirstSection() {
         if (toolZRanges[tool.number]) {
           comment += " - ZMIN=" + xyzFormat.format(toolZRanges[tool.number].getMinimum());
         }
-        comment += " - " + getToolTypeName(tool.type) + " " + tool.comment;
+        comment += " - " + getToolTypeName(tool.type) + " " + getToolCommentAndDiameter();
         writeComment(comment);
       }
     }
@@ -770,6 +786,10 @@ function writeFirstSection() {
 // Output a comment
 function writeComment(text) {
   currentFirmware.comment(text);
+}
+
+function getToolCommentAndDiameter() {
+  return tool.comment + " d" + tool.diameter;
 }
 
 // Rapid movements with G1 and differentiated travel speeds for XY and Z
@@ -1037,7 +1057,7 @@ Firmware3dPrinterLike.prototype.toolChange = function () {
     writeBlock(mFormat.format(17), 'Z'); // Disable steppers timeout
   }
   // Ask tool change and wait user to touch lcd button
-  this.askUser("Tool " + tool.number + " " + tool.comment, "Tool change", true);
+  this.askUser("Tool " + tool.number + " " + getToolCommentAndDiameter(), "Tool change", true);
 
   // Run Z probe gcode
   if (properties.toolChangeZProbe && tool.number != 0) {
