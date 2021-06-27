@@ -348,9 +348,9 @@ var kOutput = createReferenceVariable({}, kFormat);
 // Modals
 var gMotionModal = createModal({}, gFormat); // modal group 1 // G0-G3, ...
 var gPlaneModal = createModal({ onchange: function () { gMotionModal.reset(); } }, gFormat); // modal group 2 // G17-19
-var gAbsIncModal = createModal({}, gFormat); // modal group 3 // G90-91
+var gAbsIncModal = createModal({ suffix: " ; Set the positioning mode to absolute (G90) or relativ (G91)" }, gFormat); // modal group 3 // G90-91
 var gFeedModeModal = createModal({}, gFormat); // modal group 5 // G93-94
-var gUnitModal = createModal({}, gFormat); // modal group 6 // G20-21
+var gUnitModal = createModal({ suffix: " ; Set the units to mm (G20) or inch (G21)" }, gFormat); // modal group 6 // G20-21
 
 
 // Arc support variables
